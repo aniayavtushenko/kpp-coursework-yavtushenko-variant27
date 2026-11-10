@@ -1,16 +1,18 @@
+
 DROP DATABASE IF EXISTS scientific_equipment;
 CREATE DATABASE scientific_equipment;
 USE scientific_equipment;
 
--- Таблиця обладнання (на неї посилаються)
+-- Таблиця обладнання
 CREATE TABLE equipment (
                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                            inventory_code VARCHAR(40) NOT NULL,
                            name VARCHAR(160) NOT NULL,
-                           category VARCHAR(120) NOT NULL
+                           category VARCHAR(120) NOT NULL,
+                           utilization_percent DOUBLE NOT NULL DEFAULT 0
 );
 
--- Таблиця дослідників (на неї посилаються)
+-- Таблиця дослідників
 CREATE TABLE researcher (
                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
                             full_name VARCHAR(160) NOT NULL,
@@ -18,7 +20,7 @@ CREATE TABLE researcher (
                             email VARCHAR(100) NOT NULL
 );
 
--- Таблиця бронювань (містить зовнішні ключі)
+-- Таблиця бронювань
 CREATE TABLE booking (
                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                          equipment_id BIGINT NOT NULL,
@@ -28,11 +30,12 @@ CREATE TABLE booking (
                          f2 DOUBLE NOT NULL,
                          f3 DOUBLE NOT NULL,
                          risk_index DOUBLE NOT NULL,
+                         deadline DATE NULL,
                          FOREIGN KEY (equipment_id) REFERENCES equipment(id),
                          FOREIGN KEY (researcher_id) REFERENCES researcher(id)
 );
 
--- Таблиця записів використання (містить зовнішній ключ на booking)
+-- Таблиця записів використання
 CREATE TABLE usage_record (
                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
                               booking_id BIGINT NOT NULL,
@@ -42,10 +45,14 @@ CREATE TABLE usage_record (
 );
 
 -- Початкові демонстраційні дані
-INSERT INTO equipment (inventory_code, name, category) VALUES
-                                                           ('EQ-001', 'Осцилограф цифровий', 'Вимірювальні прилади'),
-                                                           ('EQ-002', 'Мікроскоп електронний', 'Оптичні прилади');
+INSERT INTO equipment (
+    inventory_code, name, category, utilization_percent
+) VALUES
+      ('EQ-001', 'Осцилограф цифровий', 'Вимірювальні прилади', 0),
+      ('EQ-002', 'Мікроскоп електронний', 'Оптичні прилади', 0);
 
-INSERT INTO researcher (full_name, department, email) VALUES
-                                                          ('Іваненко І.І.', 'Кафедра прикладної фізики', 'ivanenko@example.com'),
-                                                          ('Петренко П.П.', 'Кафедра хімії', 'petrenko@example.com');
+INSERT INTO researcher (
+    full_name, department, email
+) VALUES
+      ('Іваненко І.І.', 'Кафедра прикладної фізики', 'ivanenko@example.com'),
+      ('Петренко П.П.', 'Кафедра хімії', 'petrenko@example.com');
