@@ -1,0 +1,133 @@
+
+package ua.edu.nupp.kpp.client;
+
+import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.logging.Logger;
+
+public class EquipmentCsvImporter {
+
+    private static final Logger LOG =
+            Logger.getLogger(EquipmentCsvImporter.class.getName());
+
+    private final Path file;
+    private final HttpEquipmentClient api;
+
+    public EquipmentCsvImporter(Path file, HttpEquipmentClient api) {
+        this.file = file;
+        this.api = api;
+    }
+
+    public int importFile() throws Exception {
+
+        if (!Files.exists(file)) {
+            throw new IllegalArgumentException(
+                    "CSV-файл не знайдено: " + file.toAbsolutePath()
+            );
+        }
+
+        // Отримуємо інвентарні номери, які вже є в базі
+        Set<String> existingCodes = new HashSet<>();
+
+        for (Equipment equipment : api.getEquipments()) {
+            if (equipment.getInventoryCode() != null) {
+                existingCodes.add(
+                        equipment.getInventoryCode()
+                                .trim()
+                                .toLowerCase(Locale.ROOT)
+                );
+            }
+        }
+
+        int imported = 0;
+        int skipped = 0;
+        int lineNumber = 0;
+
+        // Послідовно читаємо CSV-файл
+        try (BufferedReader reader = Files.newBufferedReader(
+                file,
+                StandardCharsets.UTF_8)) {
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+
+                if (line.isBlank()) {
+                    continue;
+                }
+
+                // Пропускаємо заголовок CSV
+                if (lineNumber == 1 &&
+                        line.toLowerCase(Locale.ROOT)
+                                .contains("inventory_code")) {
+                    continue;
+                }
+
+                // Розділяємо рядок на три стовпці
+                String[] parts = line.split(",", -1);
+
+                if (parts.length != 3) {
+                    LOG.warning(
+                            "Некоректний рядок CSV №" + lineNumber
+                    );
+                    skipped++;
+                    continue;
+                }
+
+                String inventoryCode = parts[0].trim();
+                String name = parts[1].trim();
+                String category = parts[2].trim();
+
+                if (inventoryCode.isEmpty()
+                        || name.isEmpty()
+                        || category.isEmpty()) {
+                    LOG.warning(
+                            "Порожні поля в рядку CSV №" + lineNumber
+                    );
+                    skipped++;
+                    continue;
+                }
+
+                String normalizedCode =
+                        inventoryCode.toLowerCase(Locale.ROOT);
+
+                // Перевіряємо наявність дубліката
+                if (existingCodes.contains(normalizedCode)) {
+                    LOG.info(
+                            "Пропущено дублікат: " + inventoryCode
+                    );
+                    skipped++;
+                    continue;
+                }
+
+                // Створюємо об'єкт обладнання
+                Equipment equipment = new Equipment();
+
+                equipment.setInventoryCode(inventoryCode);
+                equipment.setName(name);
+                equipment.setCategory(category);
+                equipment.setUtilizationPercent(0.0);
+
+                // Передаємо обладнання на сервер
+                api.addEquipment(equipment);
+
+                existingCodes.add(normalizedCode);
+                imported++;
+
+            }
+        }
+
+        LOG.info(
+                "Імпорт завершено. Додано: " + imported
+                        + ", пропущено: " + skipped
+        );
+
+        return imported;
+    }
+}
