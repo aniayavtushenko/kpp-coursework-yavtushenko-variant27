@@ -1,7 +1,6 @@
 package ua.edu.nupp.kpp.server;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -24,7 +23,7 @@ public class BookingService {
 
     // Створення бронювання
     public void add(long equipmentId, long researcherId,
-                    LocalDate deadline, double f3) throws SQLException {
+                    String deadline, double f3) throws SQLException { // Змінено на String
 
         validateInput(equipmentId, researcherId, deadline, f3);
 
@@ -51,7 +50,7 @@ public class BookingService {
 
     // Редагування бронювання з перерахунком факторів
     public void update(long id, long equipmentId, long researcherId,
-                       LocalDate deadline, double f3) throws SQLException {
+                       String deadline, double f3) throws SQLException { // Змінено на String
 
         if (id <= 0) {
             throw new IllegalArgumentException("Некоректний ID бронювання");
@@ -138,10 +137,11 @@ public class BookingService {
 
     // Формування бронювання та розрахунок факторів
     private Booking fromEquipment(Long id, long equipmentId,
-                                  long researcherId, LocalDate deadline,
+                                  long researcherId, String deadline, // Змінено на String
                                   double f3, BookingState state,
                                   Equipment equipment) {
 
+        // Якщо твій RiskCalculator.factor1 очікує LocalDate, можливо, тут потрібно буде зробити LocalDate.parse(deadline)
         double f1 = RiskCalculator.factor1(deadline);
         double f2 = RiskCalculator.factor2(
                 equipment.getUtilizationPercent()
@@ -165,7 +165,7 @@ public class BookingService {
 
     // Перевірка вхідних даних
     private void validateInput(long equipmentId, long researcherId,
-                               LocalDate deadline, double f3) {
+                               String deadline, double f3) { // Змінено на String
 
         if (equipmentId <= 0) {
             throw new IllegalArgumentException(
@@ -179,7 +179,8 @@ public class BookingService {
             );
         }
 
-        if (deadline == null) {
+        // Перевіряємо, чи рядок не порожній
+        if (deadline == null || deadline.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Необхідно вказати дедлайн"
             );

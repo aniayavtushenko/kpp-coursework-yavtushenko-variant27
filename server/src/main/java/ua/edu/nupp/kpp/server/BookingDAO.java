@@ -19,13 +19,7 @@ public class BookingDAO {
             statement.setLong(1, booking.getEquipmentId());
             statement.setLong(2, booking.getResearcherId());
             statement.setString(3, booking.getState().name());
-
-            if (booking.getDeadline() == null) {
-                statement.setNull(4, Types.DATE);
-            } else {
-                statement.setDate(4, Date.valueOf(booking.getDeadline()));
-            }
-
+            statement.setString(4, booking.getDeadline()); // Змінено на setString для тексту
             statement.setDouble(5, booking.getF1());
             statement.setDouble(6, booking.getF2());
             statement.setDouble(7, booking.getF3());
@@ -87,13 +81,7 @@ public class BookingDAO {
             statement.setLong(1, booking.getEquipmentId());
             statement.setLong(2, booking.getResearcherId());
             statement.setString(3, booking.getState().name());
-
-            if (booking.getDeadline() == null) {
-                statement.setNull(4, Types.DATE);
-            } else {
-                statement.setDate(4, Date.valueOf(booking.getDeadline()));
-            }
-
+            statement.setString(4, booking.getDeadline()); // Змінено на setString для тексту
             statement.setDouble(5, booking.getF1());
             statement.setDouble(6, booking.getF2());
             statement.setDouble(7, booking.getF3());
@@ -134,15 +122,12 @@ public class BookingDAO {
 
     // Перетворення результату SQL-запиту в об'єкт Booking
     private Booking mapResultSet(ResultSet resultSet) throws SQLException {
-
-        Date sqlDate = resultSet.getDate("deadline");
-
         return new Booking(
                 resultSet.getLong("id"),
                 resultSet.getLong("equipment_id"),
                 resultSet.getLong("researcher_id"),
                 BookingState.valueOf(resultSet.getString("state")),
-                sqlDate == null ? null : sqlDate.toLocalDate(),
+                resultSet.getString("deadline"), // Змінено на getString для тексту
                 resultSet.getDouble("f1"),
                 resultSet.getDouble("f2"),
                 resultSet.getDouble("f3"),

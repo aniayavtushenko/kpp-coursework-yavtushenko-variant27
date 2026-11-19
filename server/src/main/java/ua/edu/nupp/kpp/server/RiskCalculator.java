@@ -1,7 +1,7 @@
-
 package ua.edu.nupp.kpp.server;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
 public class RiskCalculator {
@@ -9,12 +9,20 @@ public class RiskCalculator {
     private static final double DEADLINE_PERIOD = 30.0;
 
     // F1 — близькість експериментального дедлайну
-    public static double factor1(LocalDate deadline) {
+    public static double factor1(String deadlineStr) { // Змінено на String
 
-        if (deadline == null) {
+        if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Дедлайн не може бути порожнім"
             );
+        }
+
+        LocalDate deadline;
+        try {
+            // Перетворюємо рядок YYYY-MM-DD на дату для математичних розрахунків
+            deadline = LocalDate.parse(deadlineStr);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Неправильний формат дати. Очікується YYYY-MM-DD");
         }
 
         long days = ChronoUnit.DAYS.between(

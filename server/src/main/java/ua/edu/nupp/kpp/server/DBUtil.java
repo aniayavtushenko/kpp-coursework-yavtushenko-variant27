@@ -10,12 +10,22 @@ public final class DBUtil {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
+    // Ось цей блок вирішує проблему на Tomcat
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Не вдалося завантажити драйвер MySQL", e);
+        }
+    }
+
     private DBUtil() {
     }
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
+
     public static void main(String[] args) {
         try (Connection connection = getConnection()) {
             System.out.println("Підключення до MySQL успішне.");
@@ -24,4 +34,4 @@ public final class DBUtil {
             System.out.println(e.getMessage());
         }
     }
-    }
+}
