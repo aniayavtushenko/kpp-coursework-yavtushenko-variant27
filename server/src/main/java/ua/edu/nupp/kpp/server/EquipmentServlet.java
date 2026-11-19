@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.util.Map;
 
 public class EquipmentServlet extends HttpServlet {
+
     private final EquipmentService service = new EquipmentService();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-
             writeJson(resp, service.getAll());
         } catch (Exception e) {
             writeError(resp, e);
@@ -22,6 +22,7 @@ public class EquipmentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
+
         try {
             String action = req.getParameter("action");
 
@@ -43,10 +44,12 @@ public class EquipmentServlet extends HttpServlet {
                 } else if ("update".equals(action)) {
                     service.update(value);
                 } else {
-                    throw new IllegalArgumentException("Невідома операція");
+                    throw new IllegalArgumentException("Unknown operation");
                 }
             }
+
             writeJson(resp, service.getAll());
+
         } catch (Exception e) {
             writeError(resp, e);
         }
@@ -65,7 +68,11 @@ public class EquipmentServlet extends HttpServlet {
         } else {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        writeJson(resp, Map.of("error", e.getMessage() == null ? "Помилка" : e.getMessage()));
+
+        writeJson(resp, Map.of(
+                "error",
+                e.getMessage() == null ? "Error" : e.getMessage()
+        ));
     }
 
     private long id(HttpServletRequest req) {

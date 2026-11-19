@@ -22,18 +22,18 @@ public class EquipmentService {
     public void add(Equipment equipment) throws SQLException {
         validate(equipment);
         dao.add(equipment);
-        LOG.info("Додано обладнання");
+        LOG.info("Equipment added");
     }
 
     public void update(Equipment equipment) throws SQLException {
         validate(equipment);
         dao.update(equipment);
-        LOG.info("Оновлено обладнання");
+        LOG.info("Equipment updated");
     }
 
     public void delete(long id) throws SQLException {
         dao.delete(id);
-        LOG.info("Видалено обладнання");
+        LOG.info("Equipment deleted");
     }
 
     private void validate(Equipment equipment) {
@@ -42,7 +42,7 @@ public class EquipmentService {
                 || blank(equipment.getName())
                 || blank(equipment.getCategory())) {
             throw new IllegalArgumentException(
-                    "Усі поля обладнання є обов'язковими"
+                    "All equipment fields are required"
             );
         }
     }

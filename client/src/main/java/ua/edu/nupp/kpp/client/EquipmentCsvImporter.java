@@ -1,4 +1,3 @@
-
 package ua.edu.nupp.kpp.client;
 
 import java.io.BufferedReader;
@@ -27,7 +26,7 @@ public class EquipmentCsvImporter {
 
         if (!Files.exists(file)) {
             throw new IllegalArgumentException(
-                    "CSV-файл не знайдено: " + file.toAbsolutePath()
+                    "CSV file not found: " + file.toAbsolutePath()
             );
         }
 
@@ -74,7 +73,7 @@ public class EquipmentCsvImporter {
 
                 if (parts.length != 3) {
                     LOG.warning(
-                            "Некоректний рядок CSV №" + lineNumber
+                            "Invalid CSV row number " + lineNumber
                     );
                     skipped++;
                     continue;
@@ -88,7 +87,7 @@ public class EquipmentCsvImporter {
                         || name.isEmpty()
                         || category.isEmpty()) {
                     LOG.warning(
-                            "Порожні поля в рядку CSV №" + lineNumber
+                            "Empty fields in CSV row number " + lineNumber
                     );
                     skipped++;
                     continue;
@@ -100,7 +99,7 @@ public class EquipmentCsvImporter {
                 // Перевіряємо наявність дубліката
                 if (existingCodes.contains(normalizedCode)) {
                     LOG.info(
-                            "Пропущено дублікат: " + inventoryCode
+                            "Duplicate skipped: " + inventoryCode
                     );
                     skipped++;
                     continue;
@@ -119,13 +118,12 @@ public class EquipmentCsvImporter {
 
                 existingCodes.add(normalizedCode);
                 imported++;
-
             }
         }
 
         LOG.info(
-                "Імпорт завершено. Додано: " + imported
-                        + ", пропущено: " + skipped
+                "Import completed. Added: " + imported
+                        + ", skipped: " + skipped
         );
 
         return imported;

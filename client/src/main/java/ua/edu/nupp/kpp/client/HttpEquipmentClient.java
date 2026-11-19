@@ -65,7 +65,7 @@ public class HttpEquipmentClient {
             if (response.statusCode() >= 400) throw new RuntimeException(response.body());
             return response.body();
         } catch (Exception e) {
-            throw new RuntimeException("Помилка HTTP: " + e.getMessage(), e);
+            throw new RuntimeException("HTTP error: " + e.getMessage(), e);
         }
     }
 
@@ -77,9 +77,9 @@ public class HttpEquipmentClient {
             }
             return mapper.readValue(json, type);
         } catch (Exception e) {
-            System.err.println(" ПРОБЛЕМНИЙ JSON: " + json);
+            System.err.println("INVALID JSON: " + json);
             e.printStackTrace();
-            throw new RuntimeException("Помилка JSON. Дивись консоль для деталей.", e);
+            throw new RuntimeException("JSON parsing error. Check the console for details.", e);
         }
     }
 
@@ -150,9 +150,9 @@ public class HttpEquipmentClient {
         Map<String, String> map = new HashMap<>();
         map.put("action", action);
         if ("update".equals(action)) map.put("id", String.valueOf(r.getId()));
-        map.put("full_name", r.getName()); // Виправлено під назву колонки в БД
+        map.put("full_name", r.getName());
         map.put("department", r.getDepartment());
-        map.put("email", r.getEmail());       // Додано email замість position
+        map.put("email", r.getEmail());
         return map;
     }
 

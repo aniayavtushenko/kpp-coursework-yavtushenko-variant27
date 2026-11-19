@@ -13,7 +13,7 @@ public class RiskCalculator {
 
         if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                    "Дедлайн не може бути порожнім"
+                    "Deadline cannot be empty"
             );
         }
 
@@ -22,7 +22,9 @@ public class RiskCalculator {
             // Перетворюємо рядок YYYY-MM-DD на дату для математичних розрахунків
             deadline = LocalDate.parse(deadlineStr);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Неправильний формат дати. Очікується YYYY-MM-DD");
+            throw new IllegalArgumentException(
+                    "Invalid date format. Expected YYYY-MM-DD"
+            );
         }
 
         long days = ChronoUnit.DAYS.between(
@@ -67,7 +69,7 @@ public class RiskCalculator {
 
         if (!Double.isFinite(value) || value < 0 || value > 100) {
             throw new IllegalArgumentException(
-                    "Фактори мають бути в діапазоні 0..100"
+                    "Factors must be in the range 0..100"
             );
         }
     }

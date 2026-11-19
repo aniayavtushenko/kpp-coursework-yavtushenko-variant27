@@ -1,4 +1,3 @@
-
 package ua.edu.nupp.kpp.server;
 
 import java.sql.SQLException;
@@ -18,7 +17,7 @@ public class UsageRecordService {
 
     public UsageRecord getById(long id) throws SQLException {
         if (id <= 0) {
-            throw new IllegalArgumentException("Некоректний ID запису");
+            throw new IllegalArgumentException("Invalid record ID");
         }
 
         return dao.getById(id);
@@ -29,14 +28,14 @@ public class UsageRecordService {
 
         dao.add(record);
 
-        LOG.info("Додано запис використання обладнання");
+        LOG.info("Equipment usage record added");
     }
 
     public void update(UsageRecord record) throws SQLException {
         if (record == null || record.getId() == null
                 || record.getId() <= 0) {
             throw new IllegalArgumentException(
-                    "Некоректний ID запису для оновлення"
+                    "Invalid record ID for update"
             );
         }
 
@@ -44,42 +43,42 @@ public class UsageRecordService {
 
         dao.update(record);
 
-        LOG.info("Оновлено запис використання обладнання");
+        LOG.info("Equipment usage record updated");
     }
 
     public void delete(long id) throws SQLException {
         if (id <= 0) {
-            throw new IllegalArgumentException("Некоректний ID запису");
+            throw new IllegalArgumentException("Invalid record ID");
         }
 
         dao.delete(id);
 
-        LOG.info("Видалено запис використання обладнання");
+        LOG.info("Equipment usage record deleted");
     }
 
     private void validate(UsageRecord record) {
         if (record == null) {
             throw new IllegalArgumentException(
-                    "Запис використання не може бути порожнім"
+                    "Usage record cannot be null"
             );
         }
 
         if (record.getEquipmentId() <= 0) {
             throw new IllegalArgumentException(
-                    "Необхідно вибрати обладнання"
+                    "Equipment must be selected"
             );
         }
 
         if (record.getBookingId() <= 0) {
             throw new IllegalArgumentException(
-                    "Необхідно вибрати бронювання"
+                    "Booking must be selected"
             );
         }
 
         if (record.getRecordDate() == null
                 || record.getRecordDate().isBlank()) {
             throw new IllegalArgumentException(
-                    "Необхідно вказати дату запису"
+                    "Record date is required"
             );
         }
 
@@ -88,7 +87,7 @@ public class UsageRecordService {
                 || !Double.isFinite(record.getV3())
                 || !Double.isFinite(record.getUtilizationScore())) {
             throw new IllegalArgumentException(
-                    "Показники повинні бути скінченними числами"
+                    "Values must be finite numbers"
             );
         }
     }

@@ -1,3 +1,4 @@
+
 package ua.edu.nupp.kpp.server;
 
 import java.sql.SQLException;
@@ -23,13 +24,13 @@ public class BookingService {
 
     // Створення бронювання
     public void add(long equipmentId, long researcherId,
-                    String deadline, double f3) throws SQLException { // Змінено на String
+                    String deadline, double f3) throws SQLException {
 
         validateInput(equipmentId, researcherId, deadline, f3);
 
         Equipment equipment = equipmentDAO.getById(equipmentId);
         if (equipment == null) {
-            throw new IllegalArgumentException("Обладнання не знайдено");
+            throw new IllegalArgumentException("Equipment not found");
         }
 
         requireResearcher(researcherId);
@@ -45,28 +46,28 @@ public class BookingService {
         );
 
         dao.add(booking);
-        LOG.info("Додано бронювання");
+        LOG.info("Booking added");
     }
 
     // Редагування бронювання з перерахунком факторів
     public void update(long id, long equipmentId, long researcherId,
-                       String deadline, double f3) throws SQLException { // Змінено на String
+                       String deadline, double f3) throws SQLException {
 
         if (id <= 0) {
-            throw new IllegalArgumentException("Некоректний ID бронювання");
+            throw new IllegalArgumentException("Invalid booking ID");
         }
 
         Booking old = dao.getById(id);
 
         if (old == null) {
-            throw new IllegalArgumentException("Бронювання не знайдено");
+            throw new IllegalArgumentException("Booking not found");
         }
 
         validateInput(equipmentId, researcherId, deadline, f3);
 
         Equipment equipment = equipmentDAO.getById(equipmentId);
         if (equipment == null) {
-            throw new IllegalArgumentException("Обладнання не знайдено");
+            throw new IllegalArgumentException("Equipment not found");
         }
 
         requireResearcher(researcherId);
@@ -82,7 +83,7 @@ public class BookingService {
         );
 
         dao.update(updatedBooking);
-        LOG.info("Оновлено бронювання");
+        LOG.info("Booking updated");
     }
 
     // Перевірка дозволеного переходу стану бронювання
@@ -101,24 +102,24 @@ public class BookingService {
         Booking current = dao.getById(id);
 
         if (current == null) {
-            throw new IllegalArgumentException("Бронювання не знайдено");
+            throw new IllegalArgumentException("Booking not found");
         }
 
         if (!isAllowedTransition(current.getState(), next)) {
             LOG.warning(
-                    "Недопустимий перехід стану: "
+                    "Invalid state transition: "
                             + current.getState()
                             + " -> "
                             + next
             );
 
-            throw new IllegalArgumentException("Недопустимий перехід стану");
+            throw new IllegalArgumentException("Invalid state transition");
         }
 
         dao.updateState(id, next);
 
         LOG.info(
-                "Змінено стан: "
+                "Booking state changed: "
                         + current.getState()
                         + " -> "
                         + next
@@ -128,20 +129,19 @@ public class BookingService {
     // Видалення бронювання
     public void delete(long id) throws SQLException {
         if (id <= 0) {
-            throw new IllegalArgumentException("Некоректний ID бронювання");
+            throw new IllegalArgumentException("Invalid booking ID");
         }
 
         dao.delete(id);
-        LOG.info("Видалено бронювання");
+        LOG.info("Booking deleted");
     }
 
     // Формування бронювання та розрахунок факторів
     private Booking fromEquipment(Long id, long equipmentId,
-                                  long researcherId, String deadline, // Змінено на String
+                                  long researcherId, String deadline,
                                   double f3, BookingState state,
                                   Equipment equipment) {
 
-        // Якщо твій RiskCalculator.factor1 очікує LocalDate, можливо, тут потрібно буде зробити LocalDate.parse(deadline)
         double f1 = RiskCalculator.factor1(deadline);
         double f2 = RiskCalculator.factor2(
                 equipment.getUtilizationPercent()
@@ -165,30 +165,30 @@ public class BookingService {
 
     // Перевірка вхідних даних
     private void validateInput(long equipmentId, long researcherId,
-                               String deadline, double f3) { // Змінено на String
+                               String deadline, double f3) {
 
         if (equipmentId <= 0) {
             throw new IllegalArgumentException(
-                    "Некоректний ID обладнання"
+                    "Invalid equipment ID"
             );
         }
 
         if (researcherId <= 0) {
             throw new IllegalArgumentException(
-                    "Некоректний ID дослідника"
+                    "Invalid researcher ID"
             );
         }
 
         // Перевіряємо, чи рядок не порожній
         if (deadline == null || deadline.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                    "Необхідно вказати дедлайн"
+                    "Deadline is required"
             );
         }
 
         if (!Double.isFinite(f3) || f3 < 0 || f3 > 100) {
             throw new IllegalArgumentException(
-                    "Критичність має бути в діапазоні 0..100"
+                    "Criticality must be between 0 and 100"
             );
         }
     }
@@ -196,7 +196,7 @@ public class BookingService {
     // Перевірка існування дослідника
     private void requireResearcher(long id) throws SQLException {
         if (researcherDAO.getById(id) == null) {
-            throw new IllegalArgumentException("Дослідника не знайдено");
+            throw new IllegalArgumentException("Researcher not found");
         }
     }
 }

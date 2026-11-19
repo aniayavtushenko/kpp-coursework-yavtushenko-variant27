@@ -22,18 +22,18 @@ public class ResearcherService {
     public void add(Researcher researcher) throws SQLException {
         validate(researcher);
         dao.add(researcher);
-        LOG.info("Додано дослідника");
+        LOG.info("Researcher added");
     }
 
     public void update(Researcher researcher) throws SQLException {
         validate(researcher);
         dao.update(researcher);
-        LOG.info("Оновлено дослідника");
+        LOG.info("Researcher updated");
     }
 
     public void delete(long id) throws SQLException {
         dao.delete(id);
-        LOG.info("Видалено дослідника");
+        LOG.info("Researcher deleted");
     }
 
     private void validate(Researcher researcher) {
@@ -42,7 +42,7 @@ public class ResearcherService {
                 || blank(researcher.getDepartment())
                 || blank(researcher.getEmail())) {
             throw new IllegalArgumentException(
-                    "Усі поля дослідника є обов'язковими"
+                    "All researcher fields are required"
             );
         }
     }

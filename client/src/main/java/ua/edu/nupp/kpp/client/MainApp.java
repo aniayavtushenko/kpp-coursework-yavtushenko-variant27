@@ -57,7 +57,7 @@ public class MainApp extends Application {
         // Перевіряємо наявність рядків даних
         if (lines.size() < 2) {
             throw new IllegalArgumentException(
-                    "CSV-файл не містить рядків даних"
+                    "CSV file contains no data rows"
             );
         }
 
@@ -70,7 +70,7 @@ public class MainApp extends Application {
         // Перевіряємо кількість стовпців
         if (parts.length != 3) {
             LOG.warning(
-                    "Рядок CSV пропущено через неправильну кількість стовпців: "
+                    "CSV row skipped due to an incorrect number of columns: "
                             + line
             );
             return null;
@@ -155,12 +155,12 @@ public class MainApp extends Application {
 
                 new Alert(
                         Alert.AlertType.INFORMATION,
-                        "Імпортовано обладнання: " + imported
+                        "Equipment imported: " + imported
                 ).showAndWait();
 
             } catch (Exception ex) {
                 LOG.warning(
-                        "Помилка імпорту CSV: " + ex.getMessage()
+                        "CSV import error: " + ex.getMessage()
                 );
                 showError(ex);
             }
@@ -470,7 +470,7 @@ public class MainApp extends Application {
 
         if (v == null) {
             throw new IllegalArgumentException(
-                    "Виберіть запис у таблиці"
+                    "Select a record from the table"
             );
         }
 
@@ -489,11 +489,11 @@ public class MainApp extends Application {
     private void showError(Throwable e) {
         Alert d = new Alert(
                 Alert.AlertType.ERROR,
-                e == null ? "Помилка" : e.getMessage(),
+                e == null ? "Error" : e.getMessage(),
                 ButtonType.OK
         );
 
-        d.setHeaderText("Виникла помилка");
+        d.setHeaderText("An error occurred");
         d.showAndWait();
     }
 

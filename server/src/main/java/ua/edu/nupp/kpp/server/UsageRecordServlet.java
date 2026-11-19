@@ -1,4 +1,3 @@
-
 package ua.edu.nupp.kpp.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,13 +39,13 @@ public class UsageRecordServlet extends HttpServlet {
 
                 if (eqIdStr == null) {
                     throw new IllegalArgumentException(
-                            "ID обладнання є обов'язковим"
+                            "Equipment ID is required"
                     );
                 }
 
                 if (bookingIdStr == null) {
                     throw new IllegalArgumentException(
-                            "ID бронювання є обов'язковим"
+                            "Booking ID is required"
                     );
                 }
 
@@ -59,7 +58,7 @@ public class UsageRecordServlet extends HttpServlet {
 
                 if (recordDate == null) {
                     throw new IllegalArgumentException(
-                            "Вкажіть дату запису"
+                            "Please specify the record date"
                     );
                 }
 
@@ -95,7 +94,7 @@ public class UsageRecordServlet extends HttpServlet {
 
             } else {
                 throw new IllegalArgumentException(
-                        "Невідома операція"
+                        "Unknown operation"
                 );
             }
 
@@ -121,7 +120,7 @@ public class UsageRecordServlet extends HttpServlet {
     private double parseDouble(String val) {
         if (val == null || val.isBlank()) {
             throw new IllegalArgumentException(
-                    "Не всі числові показники заповнені"
+                    "Not all numeric values have been provided"
             );
         }
 
@@ -130,7 +129,7 @@ public class UsageRecordServlet extends HttpServlet {
 
             if (!Double.isFinite(result)) {
                 throw new IllegalArgumentException(
-                        "Числове значення має бути скінченним"
+                        "Numeric value must be finite"
                 );
             }
 
@@ -138,7 +137,7 @@ public class UsageRecordServlet extends HttpServlet {
 
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
-                    "Некоректне числове значення: " + val
+                    "Invalid numeric value: " + val
             );
         }
     }
@@ -162,7 +161,7 @@ public class UsageRecordServlet extends HttpServlet {
 
         writeJson(resp, Map.of(
                 "error",
-                e.getMessage() == null ? "Помилка" : e.getMessage()
+                e.getMessage() == null ? "Error" : e.getMessage()
         ));
     }
 
@@ -170,7 +169,7 @@ public class UsageRecordServlet extends HttpServlet {
         String value = req.getParameter("id");
 
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("ID запису не вказаний");
+            throw new IllegalArgumentException("Record ID is not specified");
         }
 
         return Long.parseLong(value);
