@@ -60,13 +60,42 @@ public class HttpEquipmentClient {
     }
 
     private String send(HttpRequest req) {
+        HttpResponse<String> response;
+
         try {
-            HttpResponse<String> response = httpClient.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (response.statusCode() >= 400) throw new RuntimeException(response.body());
-            return response.body();
-        } catch (Exception e) {
-            throw new RuntimeException("HTTP error: " + e.getMessage(), e);
+            response = httpClient.send(
+                    req,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
+            );
+        } catch (java.io.IOException e) {
+            String detail = e.getMessage();
+
+            if (detail == null || detail.isBlank()) {
+                detail = e.getClass().getSimpleName();
+            }
+
+            throw new RuntimeException(
+                    "Cannot connect to server. Check that Tomcat is running. Details: "
+                            + detail,
+                    e
+            );
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            throw new RuntimeException(
+                    "HTTP request was interrupted.",
+                    e
+            );
         }
+
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException(
+                    "Server error. HTTP status: " + response.statusCode()
+                            + ". " + response.body()
+            );
+        }
+
+        return response.body();
     }
 
     private <T> T read(String json, Class<T> type) {

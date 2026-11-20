@@ -46,6 +46,7 @@ public class EquipmentCsvImporter {
         int imported = 0;
         int skipped = 0;
         int lineNumber = 0;
+        boolean headerRead = false;
 
         // Послідовно читаємо CSV-файл
         try (BufferedReader reader = Files.newBufferedReader(
@@ -61,10 +62,16 @@ public class EquipmentCsvImporter {
                     continue;
                 }
 
-                // Пропускаємо заголовок CSV
-                if (lineNumber == 1 &&
-                        line.toLowerCase(Locale.ROOT)
-                                .contains("inventory_code")) {
+                // Перевіряємо заголовок CSV
+                if (!headerRead) {
+                    if (!line.trim().equalsIgnoreCase(
+                            "inventory_code,name,category")) {
+                        throw new IllegalArgumentException(
+                                "Invalid CSV header. Expected: inventory_code,name,category"
+                        );
+                    }
+
+                    headerRead = true;
                     continue;
                 }
 
@@ -119,6 +126,12 @@ public class EquipmentCsvImporter {
                 existingCodes.add(normalizedCode);
                 imported++;
             }
+        }
+
+        if (!headerRead) {
+            throw new IllegalArgumentException(
+                    "CSV file is empty or does not contain a header."
+            );
         }
 
         LOG.info(
