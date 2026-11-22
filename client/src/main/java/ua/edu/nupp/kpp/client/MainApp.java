@@ -3,17 +3,15 @@ package ua.edu.nupp.kpp.client;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MainApp extends Application {
@@ -22,6 +20,8 @@ public class MainApp extends Application {
             Logger.getLogger(MainApp.class.getName());
 
     private final HttpEquipmentClient api = new HttpEquipmentClient();
+
+    private Task<Integer> importTask;
 
     private final TableView<Equipment> equipments = new TableView<>();
     private final TableView<Researcher> researchers = new TableView<>();
@@ -47,46 +47,6 @@ public class MainApp extends Application {
         stage.show();
     }
 
-    // Початкове читання CSV-файлу без використання Task
-    private Equipment readFirstEquipment(Path file) throws IOException {
-
-        // Читаємо CSV-файл у кодуванні UTF-8
-        List<String> lines =
-                Files.readAllLines(file, StandardCharsets.UTF_8);
-
-        // Перевіряємо наявність рядків даних
-        if (lines.size() < 2) {
-            throw new IllegalArgumentException(
-                    "CSV file contains no data rows"
-            );
-        }
-
-        // Пропускаємо заголовок і беремо перший рядок даних
-        String line = lines.get(1);
-
-        // Розділяємо рядок за комою
-        String[] parts = line.split(",", -1);
-
-        // Перевіряємо кількість стовпців
-        if (parts.length != 3) {
-            LOG.warning(
-                    "CSV row skipped due to an incorrect number of columns: "
-                            + line
-            );
-            return null;
-        }
-
-        // Створюємо об'єкт обладнання
-        Equipment equipment = new Equipment();
-
-        equipment.setInventoryCode(parts[0].trim());
-        equipment.setName(parts[1].trim());
-        equipment.setCategory(parts[2].trim());
-        equipment.setUtilizationPercent(0.0);
-
-        return equipment;
-    }
-
     private Pane equipmentPane() {
         equipments.getColumns().setAll(
                 col("ID", "id"),
@@ -106,6 +66,14 @@ public class MainApp extends Application {
         Button delete = new Button("Видалити");
         Button refresh = new Button("Оновити");
         Button importCsv = new Button("Імпортувати CSV");
+        Button cancelImport = new Button("Скасувати імпорт");
+
+        ProgressBar progressBar = new ProgressBar(0);
+        progressBar.setPrefWidth(200);
+
+        Label importStatus = new Label("Імпорт не запущено");
+
+        cancelImport.setDisable(true);
 
         add.setOnAction(e -> safe(() -> {
             Equipment eq = new Equipment();
@@ -140,29 +108,18 @@ public class MainApp extends Application {
 
         refresh.setOnAction(e -> refreshEquipments());
 
-        // Послідовний імпорт обладнання з CSV без Task і Thread
-        importCsv.setOnAction(e -> {
-            try {
-                EquipmentCsvImporter importer =
-                        new EquipmentCsvImporter(
-                                Path.of("sample-data", "equipment.csv"),
-                                api
-                        );
+        importCsv.setOnAction(e ->
+                startEquipmentImport(
+                        importCsv,
+                        cancelImport,
+                        progressBar,
+                        importStatus
+                )
+        );
 
-                int imported = importer.importFile();
-
-                refreshEquipments();
-
-                new Alert(
-                        Alert.AlertType.INFORMATION,
-                        "Equipment imported: " + imported
-                ).showAndWait();
-
-            } catch (Exception ex) {
-                LOG.warning(
-                        "CSV import error: " + ex.getMessage()
-                );
-                showError(ex);
+        cancelImport.setOnAction(e -> {
+            if (importTask != null && importTask.isRunning()) {
+                importTask.cancel(true);
             }
         });
 
@@ -184,8 +141,122 @@ public class MainApp extends Application {
                 new Label("Назва"), name,
                 new Label("Категорія"), category,
                 new Label("Відсоток використання"), percent,
-                new HBox(8, add, update, delete, refresh, importCsv)
+                new HBox(8, add, update, delete, refresh),
+                new Separator(),
+                new HBox(8, importCsv, cancelImport),
+                progressBar,
+                importStatus
         ));
+    }
+
+    private void startEquipmentImport(
+            Button importCsv,
+            Button cancelImport,
+            ProgressBar progressBar,
+            Label importStatus
+    ) {
+        importTask = new ImportEquipmentTask(
+                Path.of("sample-data", "equipment.csv"),
+                api
+        );
+
+        Task<Integer> task = importTask;
+
+        progressBar.progressProperty().bind(task.progressProperty());
+        importStatus.textProperty().bind(task.messageProperty());
+
+        importCsv.setDisable(true);
+        cancelImport.setDisable(false);
+
+        task.setOnSucceeded(e -> {
+            progressBar.progressProperty().unbind();
+            importStatus.textProperty().unbind();
+
+            int imported = task.getValue();
+
+            importStatus.setText(
+                    "Імпорт завершено. Додано: " + imported
+            );
+
+            importCsv.setDisable(false);
+            cancelImport.setDisable(true);
+
+            refreshEquipments();
+
+            new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "Імпорт завершено. Додано обладнання: " + imported
+            ).showAndWait();
+        });
+
+        task.setOnFailed(e -> {
+            progressBar.progressProperty().unbind();
+            importStatus.textProperty().unbind();
+
+            Throwable error = task.getException();
+
+            LOG.log(
+                    Level.SEVERE,
+                    "Background equipment CSV import failed",
+                    error
+            );
+
+            importStatus.setText("Помилка імпорту");
+
+            importCsv.setDisable(false);
+            cancelImport.setDisable(true);
+
+            String reason = error == null || error.getMessage() == null
+                    ? "Невідома помилка"
+                    : error.getMessage();
+
+            String userMessage;
+
+            if (reason.contains("Cannot connect to server")
+                    || reason.contains("ConnectException")
+                    || reason.contains("timed out")) {
+
+                userMessage = "Не вдалося підключитися до сервера. "
+                        + "Перевірте, чи запущено Tomcat.";
+
+            } else if (reason.contains("CSV file not found")) {
+
+                userMessage = "Файл CSV не знайдено. "
+                        + "Перевірте шлях до файлу.";
+
+            } else if (reason.contains("Invalid CSV header")) {
+
+                userMessage = "Неправильний заголовок CSV-файлу.";
+
+            } else {
+
+                userMessage = "Перевірте файл CSV та журнал програми "
+                        + "для отримання подробиць.";
+            }
+
+            new Alert(
+                    Alert.AlertType.ERROR,
+                    "Не вдалося виконати імпорт.\n" + userMessage
+            ).showAndWait();
+        });
+
+        task.setOnCancelled(e -> {
+            progressBar.progressProperty().unbind();
+            importStatus.textProperty().unbind();
+
+            importStatus.setText(
+                    "Імпорт скасовано; частина записів могла бути збережена."
+            );
+
+            importCsv.setDisable(false);
+            cancelImport.setDisable(true);
+
+            refreshEquipments();
+        });
+
+        Thread thread = new Thread(task, "equipment-csv-import");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private Pane researcherPane() {

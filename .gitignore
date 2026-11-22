@@ -6,3 +6,7 @@ out/
 *.log
 .env
 application-local.properties
+.env.*
+!.env.example
+*.local.properties
+*.log.*
