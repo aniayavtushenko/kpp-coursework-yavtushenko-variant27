@@ -22,7 +22,6 @@ public class BookingService {
         return dao.getById(id);
     }
 
-    // Створення бронювання
     public void add(long equipmentId, long researcherId,
                     String deadline, double f3) throws SQLException {
 
@@ -49,7 +48,6 @@ public class BookingService {
         LOG.info("Booking added");
     }
 
-    // Редагування бронювання з перерахунком факторів
     public void update(long id, long equipmentId, long researcherId,
                        String deadline, double f3) throws SQLException {
 
@@ -86,7 +84,6 @@ public class BookingService {
         LOG.info("Booking updated");
     }
 
-    // Перевірка дозволеного переходу стану бронювання
     public static boolean isAllowedTransition(BookingState from,
                                               BookingState to) {
         return (from == BookingState.CREATED
@@ -97,7 +94,6 @@ public class BookingService {
                 && to == BookingState.CLOSED);
     }
 
-    // Зміна стану бронювання
     public void changeState(long id, BookingState next) throws SQLException {
         Booking current = dao.getById(id);
 
@@ -126,7 +122,6 @@ public class BookingService {
         );
     }
 
-    // Видалення бронювання
     public void delete(long id) throws SQLException {
         if (id <= 0) {
             throw new IllegalArgumentException("Invalid booking ID");
@@ -136,7 +131,6 @@ public class BookingService {
         LOG.info("Booking deleted");
     }
 
-    // Формування бронювання та розрахунок факторів
     private Booking fromEquipment(Long id, long equipmentId,
                                   long researcherId, String deadline,
                                   double f3, BookingState state,
@@ -163,7 +157,6 @@ public class BookingService {
         );
     }
 
-    // Перевірка вхідних даних
     private void validateInput(long equipmentId, long researcherId,
                                String deadline, double f3) {
 
@@ -179,7 +172,6 @@ public class BookingService {
             );
         }
 
-        // Перевіряємо, чи рядок не порожній
         if (deadline == null || deadline.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Deadline is required"
@@ -193,7 +185,6 @@ public class BookingService {
         }
     }
 
-    // Перевірка існування дослідника
     private void requireResearcher(long id) throws SQLException {
         if (researcherDAO.getById(id) == null) {
             throw new IllegalArgumentException("Researcher not found");

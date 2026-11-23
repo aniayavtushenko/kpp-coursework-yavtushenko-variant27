@@ -12,7 +12,6 @@ public final class DBUtil {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    // Ось цей блок вирішує проблему на Tomcat
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

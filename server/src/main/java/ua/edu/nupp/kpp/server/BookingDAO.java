@@ -6,7 +6,6 @@ import java.util.List;
 
 public class BookingDAO {
 
-    // Додавання бронювання
     public void add(Booking booking) throws SQLException {
 
         String sql = "INSERT INTO booking " +
@@ -29,7 +28,6 @@ public class BookingDAO {
         }
     }
 
-    // Отримання всіх бронювань
     public List<Booking> getAll() throws SQLException {
 
         List<Booking> bookings = new ArrayList<>();
@@ -47,7 +45,6 @@ public class BookingDAO {
         return bookings;
     }
 
-    // Отримання бронювання за ID
     public Booking getById(long id) throws SQLException {
 
         String sql = "SELECT * FROM booking WHERE id = ?";
@@ -67,7 +64,6 @@ public class BookingDAO {
         return null;
     }
 
-    // Оновлення бронювання
     public void update(Booking booking) throws SQLException {
 
         String sql = "UPDATE booking SET " +
@@ -81,7 +77,7 @@ public class BookingDAO {
             statement.setLong(1, booking.getEquipmentId());
             statement.setLong(2, booking.getResearcherId());
             statement.setString(3, booking.getState().name());
-            statement.setString(4, booking.getDeadline()); // Змінено на setString для тексту
+            statement.setString(4, booking.getDeadline());
             statement.setDouble(5, booking.getF1());
             statement.setDouble(6, booking.getF2());
             statement.setDouble(7, booking.getF3());
@@ -92,7 +88,6 @@ public class BookingDAO {
         }
     }
 
-    // Зміна стану бронювання
     public void updateState(long id, BookingState state) throws SQLException {
 
         String sql = "UPDATE booking SET state = ? WHERE id = ?";
@@ -107,7 +102,6 @@ public class BookingDAO {
         }
     }
 
-    // Видалення бронювання
     public void delete(long id) throws SQLException {
 
         String sql = "DELETE FROM booking WHERE id = ?";
@@ -120,7 +114,6 @@ public class BookingDAO {
         }
     }
 
-    // Перетворення результату SQL-запиту в об'єкт Booking
     private Booking mapResultSet(ResultSet resultSet) throws SQLException {
         return new Booking(
                 resultSet.getLong("id"),

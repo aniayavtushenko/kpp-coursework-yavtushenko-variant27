@@ -10,7 +10,6 @@ public class BookingServlet extends HttpServlet {
 
     private final BookingService service = new BookingService();
 
-    // За методичкою ObjectMapper створюється просто, без додаткових модулів
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -39,7 +38,6 @@ public class BookingServlet extends HttpServlet {
                         BookingState.valueOf(req.getParameter("state"))
                 );
             } else {
-                // Витягуємо параметри з HTTP-запиту (дата тепер просто String)
                 long equipmentId = Long.parseLong(req.getParameter("equipmentId"));
                 long researcherId = Long.parseLong(req.getParameter("researcherId"));
                 String deadline = req.getParameter("deadline");

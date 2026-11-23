@@ -8,8 +8,8 @@ public class RiskCalculator {
 
     private static final double DEADLINE_PERIOD = 30.0;
 
-    // F1 — близькість експериментального дедлайну
-    public static double factor1(String deadlineStr) { // Змінено на String
+
+    public static double factor1(String deadlineStr) {
 
         if (deadlineStr == null || deadlineStr.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -19,7 +19,7 @@ public class RiskCalculator {
 
         LocalDate deadline;
         try {
-            // Перетворюємо рядок YYYY-MM-DD на дату для математичних розрахунків
+
             deadline = LocalDate.parse(deadlineStr);
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(
@@ -38,19 +38,17 @@ public class RiskCalculator {
         return round(Math.max(0, Math.min(100, result)));
     }
 
-    // F2 — завантаженість обладнання
+
     public static double factor2(double utilizationPercent) {
         validateFactor(utilizationPercent);
         return round(utilizationPercent);
     }
 
-    // F3 — критичність дослідницького завдання
     public static double factor3(double criticality) {
         validateFactor(criticality);
         return round(criticality);
     }
 
-    // Розрахунок інтегрального показника
     public static double calculate(double f1, double f2, double f3) {
 
         validateFactor(f1);
@@ -64,7 +62,6 @@ public class RiskCalculator {
         return round(result);
     }
 
-    // Перевірка діапазону факторів
     private static void validateFactor(double value) {
 
         if (!Double.isFinite(value) || value < 0 || value > 100) {
@@ -74,7 +71,6 @@ public class RiskCalculator {
         }
     }
 
-    // Округлення до двох знаків після коми
     private static double round(double value) {
         return Math.round(value * 100.0) / 100.0;
     }

@@ -5,7 +5,6 @@
                              http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <!-- Equipment Servlet -->
     <servlet>
         <servlet-name>EquipmentServlet</servlet-name>
         <servlet-class>ua.edu.nupp.kpp.server.EquipmentServlet</servlet-class>
@@ -15,7 +14,7 @@
         <url-pattern>/equipment</url-pattern>
     </servlet-mapping>
 
-    <!-- Researcher Servlet -->
+
     <servlet>
         <servlet-name>ResearcherServlet</servlet-name>
         <servlet-class>ua.edu.nupp.kpp.server.ResearcherServlet</servlet-class>
@@ -25,7 +24,7 @@
         <url-pattern>/researchers</url-pattern>
     </servlet-mapping>
 
-    <!-- Booking Servlet -->
+
     <servlet>
         <servlet-name>BookingServlet</servlet-name>
         <servlet-class>ua.edu.nupp.kpp.server.BookingServlet</servlet-class>
@@ -35,7 +34,7 @@
         <url-pattern>/bookings</url-pattern>
     </servlet-mapping>
 
-    <!-- UsageRecord Servlet -->
+
     <servlet>
         <servlet-name>UsageRecordServlet</servlet-name>
         <servlet-class>ua.edu.nupp.kpp.server.UsageRecordServlet</servlet-class>

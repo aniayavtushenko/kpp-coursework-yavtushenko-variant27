@@ -10,6 +10,8 @@ public class UsageRecordService {
             Logger.getLogger(UsageRecordService.class.getName());
 
     private final UsageRecordDAO dao = new UsageRecordDAO();
+    private final EquipmentDAO equipmentDAO = new EquipmentDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
 
     public List<UsageRecord> getAll() throws SQLException {
         return dao.getAll();
@@ -25,6 +27,7 @@ public class UsageRecordService {
 
     public void add(UsageRecord record) throws SQLException {
         validate(record);
+        ensureReferencesExist(record);
 
         dao.add(record);
 
@@ -40,6 +43,7 @@ public class UsageRecordService {
         }
 
         validate(record);
+        ensureReferencesExist(record);
 
         dao.update(record);
 
@@ -54,6 +58,22 @@ public class UsageRecordService {
         dao.delete(id);
 
         LOG.info("Equipment usage record deleted");
+    }
+
+    private void ensureReferencesExist(UsageRecord record) throws SQLException {
+        if (equipmentDAO.getById(record.getEquipmentId()) == null) {
+            LOG.warning("Equipment not found: id=" + record.getEquipmentId());
+            throw new IllegalArgumentException(
+                    "Обладнання з ID=" + record.getEquipmentId() + " не знайдено"
+            );
+        }
+
+        if (bookingDAO.getById(record.getBookingId()) == null) {
+            LOG.warning("Booking not found: id=" + record.getBookingId());
+            throw new IllegalArgumentException(
+                    "Бронювання з ID=" + record.getBookingId() + " не знайдено"
+            );
+        }
     }
 
     private void validate(UsageRecord record) {

@@ -26,11 +26,11 @@ public class EquipmentServlet extends HttpServlet {
         try {
             String action = req.getParameter("action");
 
-            // Видалення тепер безпечно виконується через POST-запит
+
             if ("delete".equals(action)) {
                 service.delete(id(req));
             } else {
-                // Зчитуємо параметри та формуємо об'єкт Equipment згідно з твоїм конструктором
+
                 Equipment value = new Equipment(
                         "update".equals(action) ? id(req) : null,
                         req.getParameter("inventoryCode"),

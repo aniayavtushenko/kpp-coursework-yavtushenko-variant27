@@ -30,7 +30,6 @@ public class EquipmentCsvImporter {
             );
         }
 
-        // Отримуємо інвентарні номери, які вже є в базі
         Set<String> existingCodes = new HashSet<>();
 
         for (Equipment equipment : api.getEquipments()) {
@@ -48,7 +47,6 @@ public class EquipmentCsvImporter {
         int lineNumber = 0;
         boolean headerRead = false;
 
-        // Послідовно читаємо CSV-файл
         try (BufferedReader reader = Files.newBufferedReader(
                 file,
                 StandardCharsets.UTF_8)) {
@@ -62,7 +60,6 @@ public class EquipmentCsvImporter {
                     continue;
                 }
 
-                // Перевіряємо заголовок CSV
                 if (!headerRead) {
                     if (!line.trim().equalsIgnoreCase(
                             "inventory_code,name,category")) {
@@ -75,7 +72,6 @@ public class EquipmentCsvImporter {
                     continue;
                 }
 
-                // Розділяємо рядок на три стовпці
                 String[] parts = line.split(",", -1);
 
                 if (parts.length != 3) {
@@ -103,7 +99,6 @@ public class EquipmentCsvImporter {
                 String normalizedCode =
                         inventoryCode.toLowerCase(Locale.ROOT);
 
-                // Перевіряємо наявність дубліката
                 if (existingCodes.contains(normalizedCode)) {
                     LOG.info(
                             "Duplicate skipped: " + inventoryCode
@@ -112,7 +107,6 @@ public class EquipmentCsvImporter {
                     continue;
                 }
 
-                // Створюємо об'єкт обладнання
                 Equipment equipment = new Equipment();
 
                 equipment.setInventoryCode(inventoryCode);
@@ -120,7 +114,6 @@ public class EquipmentCsvImporter {
                 equipment.setCategory(category);
                 equipment.setUtilizationPercent(0.0);
 
-                // Передаємо обладнання на сервер
                 api.addEquipment(equipment);
 
                 existingCodes.add(normalizedCode);

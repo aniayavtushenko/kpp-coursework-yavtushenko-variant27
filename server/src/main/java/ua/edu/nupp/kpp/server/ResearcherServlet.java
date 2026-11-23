@@ -29,7 +29,7 @@ public class ResearcherServlet extends HttpServlet {
             if ("delete".equals(action)) {
                 service.delete(id(req));
             } else {
-                // Зчитуємо параметр fullName з можливими альтернативами, щоб уникнути помилки валідації
+
                 String fullName = req.getParameter("fullName");
                 if (fullName == null || fullName.isBlank()) {
                     fullName = req.getParameter("full_name");
@@ -38,7 +38,7 @@ public class ResearcherServlet extends HttpServlet {
                     fullName = req.getParameter("name");
                 }
 
-                // Формуємо об'єкт Researcher
+
                 Researcher value = new Researcher(
                         "update".equals(action) ? id(req) : null,
                         fullName,

@@ -23,11 +23,8 @@ public class HttpEquipmentClient {
     public HttpEquipmentClient() {
         this.httpClient = HttpClient.newHttpClient();
         this.mapper = new ObjectMapper();
-        // Ігноруємо невідомі поля з сервера, щоб уникнути помилок JSON
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
-
-    // ================= ДОПОМІЖНІ МЕТОДИ =================
 
     private String enc(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
@@ -100,7 +97,6 @@ public class HttpEquipmentClient {
 
     private <T> T read(String json, Class<T> type) {
         try {
-            // Якщо сервер повернув пустоту, повертаємо пустий масив (щоб уникнути помилки)
             if (json == null || json.trim().isEmpty()) {
                 json = "[]";
             }
@@ -112,13 +108,10 @@ public class HttpEquipmentClient {
         }
     }
 
-    // ================= GET-МЕТОДИ (ОТРИМАННЯ СПИСКІВ) =================
     public List<Equipment> getEquipments() { return Arrays.asList(read(get("/equipment"), Equipment[].class)); }
     public List<Researcher> getResearchers() { return Arrays.asList(read(get("/researchers"), Researcher[].class)); }
     public List<Booking> getBookings() { return Arrays.asList(read(get("/bookings"), Booking[].class)); }
     public List<UsageRecord> getUsageRecords() { return Arrays.asList(read(get("/usage-records"), UsageRecord[].class)); }
-
-    // ================= CRUD МЕТОДИ =================
 
     public void addEquipment(Equipment e) { post("/equipment", equipmentForm("add", e)); }
     public void updateEquipment(Equipment e) { post("/equipment", equipmentForm("update", e)); }
@@ -163,7 +156,6 @@ public class HttpEquipmentClient {
         post("/usage-records", map);
     }
 
-    // ================= ФОРМУВАННЯ ПАРАМЕТРІВ =================
     private Map<String, String> equipmentForm(String action, Equipment e) {
         Map<String, String> map = new HashMap<>();
         map.put("action", action);
