@@ -145,7 +145,9 @@ public class ImportEquipmentTask extends Task<Integer> {
                 continue;
             }
 
-            if (utilizationPercent < 0.0 || utilizationPercent > 100.0) {
+            if (!Double.isFinite(utilizationPercent)
+                    || utilizationPercent < 0.0
+                    || utilizationPercent > 100.0) {
                 LOG.warning("utilization_percent out of range [0..100] on CSV row "
                         + lineNumber + ": " + utilizationPercent);
                 skipped++;
